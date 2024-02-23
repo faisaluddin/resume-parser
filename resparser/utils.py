@@ -4,6 +4,7 @@ from . import constants as cs
 import re
 import pandas as pd
 import os
+from typing import Optional
 
 
 def extract_text_from_pdf(pdf_path: str) -> str:
@@ -57,9 +58,6 @@ def extract_name(nlp_text, matcher):
     :param matcher: object of `spacy.matcher.Matcher`
     :return: string of full name
     """
-    # pattern = [cs.NAME_PATTERN]
-
-    print("patetrn is ", cs.NAME_PATTERN)
 
     matcher.add("NAME", [cs.NAME_PATTERN])
 
@@ -186,3 +184,39 @@ def extract_entity_sections_grad(text):
     #     if entity not in entities.keys():
     #         entities[entity] = None
     return entities
+
+
+def extract_linkedin(text: str) -> Optional[str]:
+    """
+    Extract LinkedIn profile URL from the resume text.
+
+    Args:
+        resume_text (str): The text of the resume.
+
+    Returns:
+        Optional[str]: The LinkedIn profile URL if found, otherwise None.
+    """
+    linkedin_url = None
+    pattern = re.compile(r"linkedin.com/in/([A-Za-z0-9_-]+)")
+    matches = pattern.findall(text)
+    if matches:
+        linkedin_url = "https://www.linkedin.com/in/" + matches[0]
+    return linkedin_url
+
+
+def extract_gender(text: str) -> Optional[str]:
+    """
+    Extract gender from the resume text if it's mentioned suffixed with 'gender' or 'sex'.
+
+    Args:
+        resume_text (str): The text of the resume.
+
+    Returns:
+        Optional[str]: The gender if found, otherwise None.
+    """
+    gender = None
+    pattern = re.compile(r"(gender|sex)\s*:\s*(male|female)", re.IGNORECASE)
+    match = pattern.search(text)
+    if match:
+        gender = match.group(2).lower()
+    return gender

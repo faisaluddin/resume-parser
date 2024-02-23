@@ -3,6 +3,7 @@ import spacy
 from spacy.matcher import Matcher
 from . import utils
 import json
+import os
 
 
 class ResumeParser(object):
@@ -43,10 +44,10 @@ class ResumeParser(object):
         skills = utils.extract_skills(
             self.__nlp, self.__noun_chunks, self.__skills_file
         )
-        # edu = utils.extract_education(
-        #               [sent.string.strip() for sent in self.__nlp.sents]
-        #       )
-        entities = utils.extract_entity_sections_grad(self.__text_raw)
+        linkedin_profile = utils.extract_linkedin(self.__text)
+        gender = utils.extract_gender(self.__text)
+
+        # entities = utils.extract_entity_sections_grad(self.__text_raw)
 
         # extract name
         self.__details["name"] = name
@@ -60,25 +61,29 @@ class ResumeParser(object):
         # extract skills
         self.__details["skills"] = skills
 
-        # extract college name
-        try:
-            self.__details["college_name"] = entities["College Name"]
-        except KeyError:
-            pass
+        self.__details["linkedin_profile"] = linkedin_profile
 
-        # extract education Degree
+        self.__details["gender"] = gender
+
+        # extract college name
+        # try:
+        #     self.__details["college_name"] = entities["College Name"]
+        # except KeyError:
+        #     pass
+
+        # # extract education Degree
         # try:
         #     self.__details["degree"] = cust_ent["Degree"]
         # except KeyError:
         #     pass
 
-        # extract designation
+        # # extract designation
         # try:
         #     self.__details["designation"] = cust_ent["Designation"]
         # except KeyError:
         #     pass
 
-        # extract company names
+        # # extract company names
         # try:
         #     self.__details["company_names"] = cust_ent["Companies worked at"]
         # except KeyError:
@@ -99,5 +104,5 @@ class ResumeParser(object):
 
 if __name__ == "__main__":
     rs = ResumeParser("./data/resumes/kal.pdf")
-    with open("output.json", "w") as stream:
+    with open("output.json", "w", encoding="utf-8") as stream:
         stream.write(json.dumps(rs.get_extracted_data(), indent=4))
